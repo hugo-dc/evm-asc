@@ -31,8 +31,8 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
     add256() {
       console.log('[add256] BignumStackTop:', BignumStackTop)
       console.log('[add256] BignumStackTop.value:', BignumStackTop.value);
-      let stack_elem_a_pos = BignumStackStartOffset + 32*(BignumStackTop - 1);
-      let stack_elem_b_pos = BignumStackStartOffset + 32*(BignumStackTop - 2);
+      let stack_elem_a_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 1);
+      let stack_elem_b_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 2);
       console.log('[add256] stack_elem_a_pos:', stack_elem_a_pos);
       console.log('[add256] stack_elem_b_pos:', stack_elem_b_pos);
       const elemA = new Uint8Array(Memory.buffer, stack_elem_a_pos, 32);
@@ -89,7 +89,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
 })
 
 Memory = obj.memory
-BignumStackTop = obj.getBignumStackTop()
+BignumStackTop = obj.BignumStackTop
 console.log('BignumStackTop: ', BignumStackTop)
 var res = obj.run_evm()
 
