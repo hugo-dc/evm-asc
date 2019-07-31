@@ -5,12 +5,50 @@ let BignumStackTop = 0;
 let Memory;
 let BignumStackStartOffset;
 
-function pp(arr) {
-  let res = '['
-  for (var i=0; i< arr.length; i++)
-    res += arr[i] + ', '
-  res = res.substr(0, res.length - 2) + ']'
+function arrayToBn(arr) {
+  var hexstr = []
+  arr.forEach((i) => {
+    var h = i.toString(16)
+    if (h.length % 2)
+      h = '0' + h
+    hexstr.push(h)
+  })
+  return BigInt('0x'+ hexstr.join(''))
+}
+
+function bnToArray(bn) {
+  var totalLength = 32
+  var hex = bn.toString(16)
+  if (hex.length % 2)
+    hex = '0' + hex
+
+  var len = hex.length / 2
+  var res = new Uint8Array(totalLength)
+
+  var start = totalLength - len
+
+  var i = 0
+  var j = 0
+  while (i < totalLength) {
+    if (i < start) {
+      res[i] = 0;
+    } else {
+      res[i] = parseInt(hex.slice(j, j+2), 16)
+      j += 2
+    }
+    i += 1
+  }
+
   return res
+}
+
+function pp(arr) {
+  let res = []
+  arr.forEach((i) => {
+    res.push(i)
+  })
+
+  return '[' + res.join(', ') + ']'
 }
 
 function hexstr(arr) {
@@ -35,17 +73,22 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       let stack_elem_b_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 2);
       console.log('[add256] stack_elem_a_pos:', stack_elem_a_pos);
       console.log('[add256] stack_elem_b_pos:', stack_elem_b_pos);
-      const elemA = new Uint8Array(Memory.buffer, stack_elem_a_pos, 32);
-      const elemB = new Uint8Array(Memory.buffer, stack_elem_b_pos, 32);
-      console.log('[add256] elemA:', pp(elemA));
-      console.log('[add256] elemB:', pp(elemB));
-      //console.log('[add256] Memory.buffer: ', Memory.buffer);
-      let memoryview = new Uint8Array(Memory.buffer);
-      //console.log('[add256] memory:', hexstr(memoryview))
+      const arrayA = new Uint8Array(Memory.buffer, stack_elem_a_pos, 32);
+      const arrayB = new Uint8Array(Memory.buffer, stack_elem_b_pos, 32);
+      console.log('[add256] arrayA:', pp(arrayA));
+      console.log('[add256] arrayB:', pp(arrayB));
+      
+      const elemA = arrayToBn(arrayA);
+      const elemB = arrayToBn(arrayB);
 
-      result8 = elemA[31] + elemB[31];
-      const resultBytes = new Uint8Array(32);
-      resultBytes[31] = result8;
+      console.log('[add256] elemA:', elemA);
+      console.log('[add256] elemB:', elemB);
+
+      const result = elemA + elemB;
+      console.log('[add256] result:', result)
+      //const resultBytes = new Uint8Array(32);
+      const resultBytes = bnToArray(result);
+      console.log('[add256] resultBytes:', pp(resultBytes))
 
       let outOffset = stack_elem_b_pos;
       // pop 2 push 1, top is reduced by 1;
