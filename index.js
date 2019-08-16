@@ -3,7 +3,14 @@ const loader = require('assemblyscript/lib/loader')
 
 let BignumStackTop = 0;
 let Memory;
+
 let BignumStackStartOffset;
+let EVMMemoryStartOffset;
+
+
+//let calldata = '26bceb59802431afcbce1fc194c9eaa417b2fb67dc75a95db0bc7ec6b1c8af11df6a1da9a1f5aac137876480252e5dcac62c354ec0d42b76b0642b6181ed099849ea1d57'
+let calldata = new Uint8Array([38, 188, 235, 89, 128, 36, 49, 175, 203, 206, 31, 193, 148, 201, 234, 164, 23, 178, 251, 103, 220, 117, 169, 93, 176, 188, 126, 198, 177, 200, 175, 17, 223, 106, 29, 169, 161, 245, 170, 193, 55, 135, 100, 128, 37, 46, 93, 202, 198, 44, 53, 78, 192, 212, 43, 118, 176, 100, 43, 97, 129, 237, 9, 152, 73, 234, 29, 87])
+let calldatasize = calldata.length
 
 function arrayToBn(arr) {
   var hexstr = []
@@ -66,6 +73,9 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       console.log('[setBignumStack] len:', len);
       console.log('[setBignumStack] BignumStackTop:', BignumStackTop);
     },
+    setMemoryPtr(startData, len) {
+      EVMMemoryStartOffset = startData
+    },
     add256() {
       console.log('[add256] BignumStackTop:', BignumStackTop)
       console.log('[add256] BignumStackTop.value:', BignumStackTop.value);
@@ -96,6 +106,10 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32);
       outputBytes.set(resultBytes);
     },
+    calldatasize() {
+      //console.log('calldatasize: ', calldatasize)
+      return calldatasize
+    },
     finish(returnOffset) {
       const returnVal = new Uint8Array(Memory.buffer, returnOffset, 32);
       let returnHex = '';
@@ -104,6 +118,53 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
             returnHex += returnVal[i].toString(16);
       }
       console.log("[finish] return val:", returnHex);
+    },
+    printStack() {
+      console.log('STACK')
+      var i = 0;
+      while (i < BignumStackTop.value) {
+        let elem_pos = BignumStackStartOffset + 32 * i;
+        const elem = new Uint8Array(Memory.buffer, elem_pos, 32);
+        console.log(elem_pos + ':' + i + ' | ' + pp(elem))
+        i++;
+      }
+      console.log('')
+    },
+    printMemory(max) {
+      console.log('MEMORY')
+      var i = 0;
+      while (i < max) {
+        let elem_pos = EVMMemoryStartOffset + 16 * i;
+
+        const elem = new Uint8Array(Memory.buffer, elem_pos, 16);
+        let ix = i * 16
+        console.log(elem_pos + ': 0x' + ix.toString(16) + ' | ' + pp(elem))
+        i++;
+      }
+      console.log('')
+    },
+    printMemSlot(arr) {
+      console.log('>', arr)
+      const elem = new Uint8Array(Memory.buffer, arr, 32);
+      console.log(pp(elem))
+    },
+    printOpcode(pc, opnum, value) {
+      var opcode = 'UNK'
+      switch (opnum) {
+      case 0x52:
+        opcode = 'MSTORE'
+        break
+      case 0x60:
+        opcode = 'PUSH1'
+        break
+      case 0x36:
+        opcode = 'CALLDATASIZE'
+        break
+      }
+      
+      console.log('====================================================')
+      console.log((pc - 1) + ' ' +  opcode, ' [' + value.toString(16) + ']')
+      console.log('====================================================')
     }
   },
   env: {
@@ -112,18 +173,30 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
     },
     log(value) {
       var op = ''
-      if (value > 1000) {
+      if (value >= 1000) {
         value = value - 1000
         if (value == 0x60)
           op = '- PUSH1'
         if (value == 0x01)
           op = '- ADD'
+        if (value == 0x52)
+          op = '- MSTORE'
         if (value == 0x55)
           op = '- SSTORE'
+        if (value == 0x36)
+          op = '- CALLDATASIZE'
+        if (value == 0x10)
+          op = '- LT'
+        if (value == 0x00)
+          op = '- STOP'
+        if (value == 0x57)
+          op = '- JUMPI'
+        if (value == 0x7c)
+          op = '- PUSH29'
       }
       
       if (op == '') {
-        console.log('[log]', value)
+        console.log('[log]', value, '-', value.toString(16))
       } else {
         console.log('[log]', '0x' + value.toString(16), op)
       }4
