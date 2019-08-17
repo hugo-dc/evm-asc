@@ -77,34 +77,64 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       EVMMemoryStartOffset = startData
     },
     add256() {
-      console.log('[add256] BignumStackTop:', BignumStackTop)
-      console.log('[add256] BignumStackTop.value:', BignumStackTop.value);
-      let stack_elem_a_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 1);
-      let stack_elem_b_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 2);
-      console.log('[add256] stack_elem_a_pos:', stack_elem_a_pos);
-      console.log('[add256] stack_elem_b_pos:', stack_elem_b_pos);
-      const arrayA = new Uint8Array(Memory.buffer, stack_elem_a_pos, 32);
-      const arrayB = new Uint8Array(Memory.buffer, stack_elem_b_pos, 32);
-      console.log('[add256] arrayA:', pp(arrayA));
-      console.log('[add256] arrayB:', pp(arrayB));
+      let stack_elem_a_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 1)
+      let stack_elem_b_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 2)
+      const arrayA = new Uint8Array(Memory.buffer, stack_elem_a_pos, 32)
+      const arrayB = new Uint8Array(Memory.buffer, stack_elem_b_pos, 32)
       
-      const elemA = arrayToBn(arrayA);
-      const elemB = arrayToBn(arrayB);
+      const elemA = arrayToBn(arrayA)
+      const elemB = arrayToBn(arrayB)
 
-      console.log('[add256] elemA:', elemA);
-      console.log('[add256] elemB:', elemB);
+      const result = elemA + elemB
+      const resultBytes = bnToArray(result)
 
-      const result = elemA + elemB;
-      console.log('[add256] result:', result)
-      //const resultBytes = new Uint8Array(32);
-      const resultBytes = bnToArray(result);
-      console.log('[add256] resultBytes:', pp(resultBytes))
+      let outOffset = stack_elem_b_pos
+      // pop 2 push 1, top is reduced by 1
+      BignumStackTop = BignumStackTop - 1
+      const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
+      outputBytes.set(resultBytes)
+    },
+    lt() {
+      let stack_elem_a_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 1)
+      let stack_elem_b_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 2)
+      
+      const arrayA = new Uint8Array(Memory.buffer, stack_elem_a_pos, 32)
+      const arrayB = new Uint8Array(Memory.buffer, stack_elem_b_pos, 32)
 
-      let outOffset = stack_elem_b_pos;
-      // pop 2 push 1, top is reduced by 1;
-      BignumStackTop = BignumStackTop - 1;
-      const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32);
-      outputBytes.set(resultBytes);
+      const elemA = arrayToBn(arrayA)
+      const elemB = arrayToBn(arrayB)
+
+      let result = BigInt(0)
+      if (elemA < elemB) {
+        result = BigInt(1)
+      } 
+
+      const resultBytes = bnToArray(result)
+
+      let outOffset = stack_elem_b_pos
+      // pop 2 push 1, top is reduced by 1
+      BignumStackTop.value = BignumStackTop.value - 1
+      const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
+      outputBytes.set(resultBytes)
+    },
+    isZero() {
+      let stack_elem_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 1)
+      const arrValue = new Uint8Array(Memory.buffer, stack_elem_pos, 32)
+      const value = arrayToBn(arrValue)
+
+      let result = BigInt(0)
+      if (value == 0) {
+        result = BigInt(1)
+      }
+
+      const resultBytes = bnToArray(result)
+      let outOffset = stack_elem_pos
+      const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
+      outputBytes.set(resultBytes)
+      
+    },
+    callvalue() {
+      return 0
     },
     calldatasize() {
       //console.log('calldatasize: ', calldatasize)
@@ -149,16 +179,63 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       console.log(pp(elem))
     },
     printOpcode(pc, opnum, value) {
-      var opcode = 'UNK'
+      var opcode = 'UNK (' + opnum + ')'
       switch (opnum) {
+      case 0x00:
+        opcode = 'STOP'
+      case 0x01:
+        opcode = 'ADD'
+        break
+      case 0x10:
+        opcode = 'LT'
+        break
+      case 0x15:
+        opcode = 'ISZERO'
+        break
+      case 0x34:
+        opcode = 'CALLVALUE'
+        break
+      case 0x36:
+        opcode = 'CALLDATASIZE'
+        break
+      case 0x39:
+        opcode = 'CODECOPY'
+        break
+      case 0x50:
+        opcode = 'POP'
+        break
       case 0x52:
         opcode = 'MSTORE'
+        break
+      case 0x55:
+        opcode = 'SSTORE'
+        break
+      case 0x57:
+        opcode = 'JUMPI'
+        break
+      case 0x5b:
+        opcode = 'JUMPDEST'
         break
       case 0x60:
         opcode = 'PUSH1'
         break
-      case 0x36:
-        opcode = 'CALLDATASIZE'
+      case 0x61:
+        opcode = 'PUSH2'
+        break
+      case 0x7c:
+        opcode = 'PUSH29'
+        break
+      case 0x80:
+        opcode = 'DUP1'
+        break
+      case 0xf3:
+        opcode = 'RETURN'
+        break
+      case 0xfd:
+        opcode = 'REVERT'
+        break
+      case 0xfe:
+        opcode = 'INVALID'
         break
       }
       
@@ -172,34 +249,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       console.error("[abort] abort called at main.ts:" + line + ":" + column);
     },
     log(value) {
-      var op = ''
-      if (value >= 1000) {
-        value = value - 1000
-        if (value == 0x60)
-          op = '- PUSH1'
-        if (value == 0x01)
-          op = '- ADD'
-        if (value == 0x52)
-          op = '- MSTORE'
-        if (value == 0x55)
-          op = '- SSTORE'
-        if (value == 0x36)
-          op = '- CALLDATASIZE'
-        if (value == 0x10)
-          op = '- LT'
-        if (value == 0x00)
-          op = '- STOP'
-        if (value == 0x57)
-          op = '- JUMPI'
-        if (value == 0x7c)
-          op = '- PUSH29'
-      }
-      
-      if (op == '') {
-        console.log('[log]', value, '-', value.toString(16))
-      } else {
-        console.log('[log]', '0x' + value.toString(16), op)
-      }4
+      console.log('[log]', '0x' + value.toString(16), '/', value)
     }
   },
 })
