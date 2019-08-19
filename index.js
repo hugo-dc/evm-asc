@@ -10,7 +10,7 @@ let EVMMemoryStartOffset;
 
 //let calldata = '26bceb59802431afcbce1fc194c9eaa417b2fb67dc75a95db0bc7ec6b1c8af11df6a1da9a1f5aac137876480252e5dcac62c354ec0d42b76b0642b6181ed099849ea1d57'
 let calldata = new Uint8Array([38, 188, 235, 89, 128, 36, 49, 175, 203, 206, 31, 193, 148, 201, 234, 164, 23, 178, 251, 103, 220, 117, 169, 93, 176, 188, 126, 198, 177, 200, 175, 17, 223, 106, 29, 169, 161, 245, 170, 193, 55, 135, 100, 128, 37, 46, 93, 202, 198, 44, 53, 78, 192, 212, 43, 118, 176, 100, 43, 97, 129, 237, 9, 152, 73, 234, 29, 87])
-let calldatasize = calldata.length
+//let calldatasize = calldata.length
 
 function arrayToBn(arr) {
   var hexstr = []
@@ -90,7 +90,42 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
 
       let outOffset = stack_elem_b_pos
       // pop 2 push 1, top is reduced by 1
-      BignumStackTop = BignumStackTop - 1
+      BignumStackTop.value = BignumStackTop.value - 1
+      const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
+      outputBytes.set(resultBytes)
+    },
+    sub256() {
+      let a_pos = BignumStackStartOffset + 32 *(BignumStackTop.value - 1)
+      let b_pos = BignumStackStartOffset + 32 *(BignumStackTop.value - 2)
+      const arrA = new Uint8Array(Memory.buffer, a_pos, 32)
+      const arrB = new Uint8Array(Memory.buffer, b_pos, 32)
+
+      const elemA = arrayToBn(arrA)
+      const elemB = arrayToBn(arrB)
+
+      const result = elemA - elemB
+      const resultBytes = bnToArray(result)
+
+      let outOffset = b_pos
+      BignumStackTop.value = BignumStackTop.value - 1
+      const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
+      outputBytes.set(resultBytes)
+    }, 
+    div256() {
+      let a_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 1)
+      let b_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 2)
+      const arrA = new Uint8Array(Memory.buffer, a_pos, 32)
+      const arrB = new Uint8Array(Memory.buffer, b_pos, 32)
+
+      const elemA = arrayToBn(arrA)
+      const elemB = arrayToBn(arrB)
+
+      const result = elemA / elemB
+
+      const resultBytes = bnToArray(result)
+
+      let outOffset = b_pos
+      BignumStackTop.value = BignumStackTop.value - 1
       const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
       outputBytes.set(resultBytes)
     },
@@ -117,6 +152,27 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
       outputBytes.set(resultBytes)
     },
+    eq() {
+      let a_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 1)
+      let b_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 2)
+
+      const arrA = new Uint8Array(Memory.buffer, a_pos, 32)
+      const arrB = new Uint8Array(Memory.buffer, b_pos, 32)
+
+      const elemA = arrayToBn(arrA)
+      const elemB = arrayToBn(arrB)
+
+      let result = BigInt(0)
+      if (elemA == elemB) {
+        result = BigInt(1)
+      }
+
+      const resultBytes = bnToArray(result)
+      let outOffset = b_pos
+      BignumStackTop.value = BignumStackTop.value - 1
+      const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
+      outputBytes.set(resultBytes)
+    },
     isZero() {
       let stack_elem_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 1)
       const arrValue = new Uint8Array(Memory.buffer, stack_elem_pos, 32)
@@ -136,9 +192,19 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
     callvalue() {
       return 0
     },
+    calldataload(offset) {
+      let stack_elem_pos = BignumStackStartOffset + (32 * BignumStackTop.value)
+      const elem = new Uint8Array(Memory.buffer, stack_elem_pos, 32)
+
+      for (let i = offset; i < offset+32 ; i++) {
+        elem[i] = calldata[i]
+      }
+
+      BignumStackTop.value = BignumStackTop.value + 1
+    },
     calldatasize() {
       //console.log('calldatasize: ', calldatasize)
-      return calldatasize
+      return calldata.length
     },
     finish(returnOffset) {
       const returnVal = new Uint8Array(Memory.buffer, returnOffset, 32);
@@ -186,14 +252,26 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       case 0x01:
         opcode = 'ADD'
         break
+      case 0x03:
+        opcode = 'SUB'
+        break
+      case 0x04:
+        opcode = 'DIV'
+        break
       case 0x10:
         opcode = 'LT'
+        break
+      case 0x14:
+        opcode = 'EQ'
         break
       case 0x15:
         opcode = 'ISZERO'
         break
       case 0x34:
         opcode = 'CALLVALUE'
+        break
+      case 0x35:
+        opcode = 'CALLDATALOAD'
         break
       case 0x36:
         opcode = 'CALLDATASIZE'
@@ -222,11 +300,20 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       case 0x61:
         opcode = 'PUSH2'
         break
+      case 0x63:
+        opcode = 'PUSH4'
+        break
       case 0x7c:
         opcode = 'PUSH29'
         break
       case 0x80:
         opcode = 'DUP1'
+        break
+      case 0x81:
+        opcode = 'DUP2'
+        break
+      case 0x90:
+        opcode = 'SWAP1'
         break
       case 0xf3:
         opcode = 'RETURN'
@@ -239,9 +326,10 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
         break
       }
       
-      console.log('====================================================')
+      console.log('------------------------------------------------------------------------------------------------------------')
       console.log((pc - 1) + ' ' +  opcode, ' [' + value.toString(16) + ']')
-      console.log('====================================================')
+      //console.log('====================================================')
+      console.log('')
     }
   },
   env: {

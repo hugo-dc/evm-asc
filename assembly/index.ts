@@ -10,14 +10,26 @@ declare function setMemoryPtr(startData: i32, len: i32): void
 @external("main", "add256")
 declare function add256(): void
 
+@external("main", "sub256")
+declare function sub256(): void
+
+@external("main", "div256")
+declare function div256(): void
+
 @external("main", "lt")
 declare function ltFunc(): void
+
+@external("main", "eq")
+declare function eqFunc(): void
 
 @external("main", "isZero")
 declare function isZeroFunc(): void
 
 @external("main", "calldatasize")
 declare function getcalldatasize(): i32
+
+@external("main", "calldataload")
+declare function getcalldata(offset: i32): void
 
 @external("main", "callvalue")
 declare function getcallvalue(): i32
@@ -74,22 +86,27 @@ export let BignumStackTop: i32 = 0;
 //let code_array: u8[] = [96, 171, 96, 13, 1, 96, 0, 85];
 //let code_array: u8[] = [96, 7, 96, 13, 1, 96, 0, 85];
 
-//                                                                       v
+// actual code test                                                            v
 //let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 0, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0, 128, 91, 97, 39, 16, 129, 16, 21, 97, 1, 25, 87, 146, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 146, 96, 1, 1, 97, 0, 133, 86, 91, 80, 145, 146, 145, 80, 80, 86, 254, 161, 101, 98, 122, 122, 114, 48, 88, 32, 241, 119, 162, 139, 221, 145, 28, 48, 80, 232, 56, 92, 67, 2, 134, 171, 233, 224, 172, 166, 56, 129, 39, 238, 224, 11, 209, 57, 97, 172, 186, 106, 0, 41];
 
-// let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87];
+// partial code test
+let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 39, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144];
 
 // constructor test
-let code_array: u8[] = [96, 128, 96, 64, 82, 52, 128, 21, 97, 0, 16, 87, 96, 0, 128, 253, 91, 80, 97, 1, 152, 128, 97, 0, 32, 96, 0, 57, 96, 0, 243, 254]
+// let code_array: u8[] = [96, 128, 96, 64, 82, 52, 128, 21, 97, 0, 16, 87, 96, 0, 128, 253, 91, 80, 97, 1, 152, 128, 97, 0, 32, 96, 0, 57, 96, 0, 243, 254]
 
 let result: i32 = 0
 let pc: i32 = 0
 
 const stop: u8 = 0x00
 const add: u8 = 0x01
+const sub: u8 = 0x03
+const div: u8 = 0x04
 const lt: u8 = 0x10
+const eq: u8 = 0x14
 const iszero: u8 = 0x15
 const callvalue: u8 = 0x34
+const calldataload: u8 = 0x35
 const calldatasize: u8 = 0x36
 const codecopy: u8 = 0x39
 const pop: u8 = 0x50
@@ -99,8 +116,12 @@ const jumpi: u8 = 0x57
 const jumpdest: u8 = 0x5b
 const push1: u8 = 0x60
 const push2: u8 = 0x61
+const push3: u8 = 0x62
+const push4: u8 = 0x63
 const push29: u8 = 0x7c
 const dup1: u8 = 0x80
+const dup2: u8 = 0x81
+const swap1: u8 = 0x90
 const opreturn: u8 = 0xf3
 const revert: u8 = 0xfd
 const invalid: u8 = 0xfe
@@ -132,27 +153,213 @@ export function run_evm(): i32 {
             result++
             let push_val1 = code_array[pc]
             pc++
-            let stack_slot1 = BignumStackElements[BignumStackTop]
-            stack_slot1[31] = push_val1
-            BignumStackTop++
-            
             let push_val2 = code_array[pc]
             pc++
-            let stack_slot2 = BignumStackElements[BignumStackTop]
-            stack_slot2[31] = push_val2
+            
+            let stack_slot = BignumStackElements[BignumStackTop]
+            stack_slot[0] = 0
+            stack_slot[1] = 0
+            stack_slot[2] = 0
+            stack_slot[3] = 0
+            stack_slot[4] = 0
+            stack_slot[5] = 0
+            stack_slot[6] = 0
+            stack_slot[7] = 0
+            stack_slot[8] = 0
+            stack_slot[9] = 0
+            stack_slot[10] = 0
+            stack_slot[11] = 0
+            stack_slot[12] = 0
+            stack_slot[13] = 0
+            stack_slot[14] = 0
+            stack_slot[15] = 0
+            stack_slot[16] = 0
+            stack_slot[17] = 0
+            stack_slot[18] = 0
+            stack_slot[19] = 0
+            stack_slot[20] = 0
+            stack_slot[21] = 0
+            stack_slot[22] = 0
+            stack_slot[23] = 0
+            stack_slot[24] = 0
+            stack_slot[25] = 0
+            stack_slot[26] = 0
+            stack_slot[27] = 0
+            stack_slot[28] = 0
+            stack_slot[29] = 0
+            stack_slot[30] = push_val1
+            stack_slot[31] = push_val2
+            BignumStackTop++
+            
+            printOpcode(pc, opcode, push_val2)
+            printStack()
+            break
+        case push4:
+            result++
+            let push_val1 = code_array[pc]
+            pc++
+            let push_val2 = code_array[pc]
+            pc++
+            let push_val3 = code_array[pc]
+            pc++
+            let push_val4 = code_array[pc]
+            pc++
+
+            let stack_slot = BignumStackElements[BignumStackTop]
+            stack_slot[0] = 0
+            stack_slot[1] = 0
+            stack_slot[2] = 0
+            stack_slot[3] = 0
+            stack_slot[4] = 0
+            stack_slot[5] = 0
+            stack_slot[6] = 0
+            stack_slot[7] = 0
+            stack_slot[8] = 0
+            stack_slot[9] = 0
+            stack_slot[10] = 0
+            stack_slot[11] = 0
+            stack_slot[12] = 0
+            stack_slot[13] = 0
+            stack_slot[14] = 0
+            stack_slot[15] = 0
+            stack_slot[16] = 0
+            stack_slot[17] = 0
+            stack_slot[18] = 0
+            stack_slot[19] = 0
+            stack_slot[20] = 0
+            stack_slot[21] = 0
+            stack_slot[22] = 0
+            stack_slot[23] = 0
+            stack_slot[24] = 0
+            stack_slot[25] = 0
+            stack_slot[26] = 0
+            stack_slot[27] = 0
+            stack_slot[28] = push_val1
+            stack_slot[29] = push_val2
+            stack_slot[30] = push_val3
+            stack_slot[31] = push_val4
             BignumStackTop++
 
-            printOpcode(pc, opcode, push_val2)
-
+            printOpcode(pc, opcode, push_val4)
             printStack()
+            break
+        case push29:
+            result++
+
+            let push_val1 = code_array[pc]
+            pc++
+            let push_val2 = code_array[pc]
+            pc++
+            let push_val3 = code_array[pc]
+            pc++
+            let push_val4 = code_array[pc]
+            pc++
+            let push_val5 = code_array[pc]
+            pc++
+            let push_val6 = code_array[pc]
+            pc++
+            let push_val7 = code_array[pc]
+            pc++
+            let push_val8 = code_array[pc]
+            pc++
+            let push_val9 = code_array[pc]
+            pc++
+            let push_val10 = code_array[pc]
+            pc++
+            let push_val11 = code_array[pc]
+            pc++
+            let push_val12 = code_array[pc]
+            pc++
+            let push_val13 = code_array[pc]
+            pc++
+            let push_val14 = code_array[pc]
+            pc++
+            let push_val15 = code_array[pc]
+            pc++
+            let push_val16 = code_array[pc]
+            pc++
+            let push_val17 = code_array[pc]
+            pc++
+            let push_val18 = code_array[pc]
+            pc++
+            let push_val19 = code_array[pc]
+            pc++
+            let push_val20 = code_array[pc]
+            pc++
+            let push_val21 = code_array[pc]
+            pc++
+            let push_val22 = code_array[pc]
+            pc++
+            let push_val23 = code_array[pc]
+            pc++
+            let push_val24 = code_array[pc]
+            pc++
+            let push_val25 = code_array[pc]
+            pc++
+            let push_val26 = code_array[pc]
+            pc++
+            let push_val27 = code_array[pc]
+            pc++
+            let push_val28 = code_array[pc]
+            pc++
+            let push_val29 = code_array[pc]
+            pc++
+
+            let stack_slot = BignumStackElements[BignumStackTop]
+            stack_slot[3] = push_val1
+            stack_slot[4] = push_val2
+            stack_slot[5] = push_val3
+            stack_slot[6] = push_val4
+            stack_slot[7] = push_val5
+            stack_slot[8] = push_val6
+            stack_slot[9] = push_val7
+            stack_slot[10] = push_val8
+            stack_slot[11] = push_val9
+            stack_slot[12] = push_val10
+            stack_slot[13] = push_val11
+            stack_slot[14] = push_val12
+            stack_slot[15] = push_val13
+            stack_slot[16] = push_val14
+            stack_slot[17] = push_val15
+            stack_slot[18] = push_val16
+            stack_slot[19] = push_val17
+            stack_slot[20] = push_val18
+            stack_slot[21] = push_val19
+            stack_slot[22] = push_val20
+            stack_slot[23] = push_val21
+            stack_slot[24] = push_val22
+            stack_slot[25] = push_val23
+            stack_slot[26] = push_val24
+            stack_slot[27] = push_val25
+            stack_slot[28] = push_val26
+            stack_slot[29] = push_val27
+            stack_slot[30] = push_val28
+            stack_slot[31] = push_val29
+
+            BignumStackTop++
+
+            printOpcode(pc, push29, 0)
+            printStack()
+            
             break
         case add:
             result++
             printOpcode(pc, add, 0)
-            //let left = BignumStackElements[BignumStackTop-1];
-            //let right = BignumStackElements[BignumStackTop-2];
-            add256();
+            add256()
+            printStack()
             break;
+        case sub:
+            result++
+            printOpcode(pc, opcode, 0)
+            sub256()
+            printStack()
+            break
+        case div:
+            result++
+            printOpcode(pc, opcode, 0)
+            div256()
+            printStack()
+            break
         case sstore:
             result++
             //log(1000 + opcode)
@@ -163,6 +370,8 @@ export function run_evm(): i32 {
         case pop:
             result++
             printOpcode(pc, pop, 0)
+            BignumStackTop--
+            printStack()
             break
         case mstore:
             result++
@@ -202,6 +411,16 @@ export function run_evm(): i32 {
 
             printStack()
             break
+        case calldataload:
+            result++
+            printOpcode(pc, opcode, 0)
+            BignumStackTop--
+            let pos_slot = BignumStackElements[BignumStackTop]
+            let pos = pos_slot[31]
+
+            getcalldata(pos)
+            printStack()
+            break
         case calldatasize:
             result++
             printOpcode(pc, opcode, 0)
@@ -226,6 +445,12 @@ export function run_evm(): i32 {
             ltFunc()
             printStack()
             break
+        case eq:
+            result++
+            printOpcode(pc, opcode, 0)
+            eqFunc()
+            printStack()
+            break
         case iszero:
             result++
             printOpcode(pc, iszero, 0)
@@ -241,7 +466,6 @@ export function run_evm(): i32 {
             break
         case jumpi:
             result++
-            printOpcode(pc, jumpi, 0)
 
             // pop destination
             BignumStackTop--
@@ -253,8 +477,10 @@ export function run_evm(): i32 {
             let cond_slot = BignumStackElements[BignumStackTop]
             let cond = cond_slot[31]
 
+            printOpcode(pc, jumpi, dest)
+
             if (cond != 0) {
-                log(42) // TODO: jump
+                pc = dest
             }
 
             printStack()
@@ -263,26 +489,46 @@ export function run_evm(): i32 {
         case jumpdest:
             result++
             printOpcode(pc, jumpdest, 0)
-            break
-        case push29:
-            result++
-            printOpcode(pc, push29, 0)
+            printStack()
             break
         case dup1:
             printOpcode(pc, dup1, 0)
 
             // get value
             let value_slot = BignumStackElements[BignumStackTop - 1]
-            let value = value_slot[31]
 
             // push value
             let dup_slot = BignumStackElements[BignumStackTop]
-            dup_slot[31] = value
+            dup_slot[30] = value_slot[30]
+            dup_slot[31] = value_slot[31]
 
             BignumStackTop++
-
             printStack()
             
+            break
+        case dup2:
+            printOpcode(pc, opcode, 0)
+
+            // get value
+            let value_slot = BignumStackElements[BignumStackTop - 2]
+
+            // push value
+            let dup_slot = BignumStackElements[BignumStackTop]
+            dup_slot[28] = value_slot[28]
+            dup_slot[29] = value_slot[29]
+            dup_slot[30] = value_slot[30]
+            dup_slot[31] = value_slot[31]
+
+            BignumStackTop++
+            printStack()
+            break
+        case swap1: // TODO
+            printOpcode(pc, opcode, 0)
+
+            // get stack top
+            let top_slot = BignumStackElements[BignumStackTop - 1]
+
+            // get value 
             break
         case opreturn:
             printOpcode(pc, opreturn, 0)
