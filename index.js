@@ -94,6 +94,23 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
       outputBytes.set(resultBytes)
     },
+    mul256() {
+      let a_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 1)
+      let b_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 2)
+      const arrA = new Uint8Array(Memory.buffer, a_pos, 32)
+      const arrB = new Uint8Array(Memory.buffer, b_pos, 32)
+
+      const elemA = arrayToBn(arrA)
+      const elemB = arrayToBn(arrB)
+
+      const result = elemA * elemB
+      const resultBytes = bnToArray(result)
+
+      let outOffset = b_pos
+      BignumStackTop.value = BignumStackTop.value - 1
+      const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
+      outputBytes.set(resultBytes)
+    },
     sub256() {
       let a_pos = BignumStackStartOffset + 32 *(BignumStackTop.value - 1)
       let b_pos = BignumStackStartOffset + 32 *(BignumStackTop.value - 2)
@@ -266,6 +283,9 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
         opcode = 'STOP'
       case 0x01:
         opcode = 'ADD'
+        break
+      case 0x02:
+        opcode = 'MUL'
         break
       case 0x03:
         opcode = 'SUB'
