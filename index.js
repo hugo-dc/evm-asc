@@ -192,6 +192,18 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       outputBytes.set(resultBytes)
       
     },
+    not256() {
+      let elem_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 1)
+      const arrValue = new Uint8Array(Memory.buffer, elem_pos, 32)
+      const result = new Uint8Array(32)
+
+      for (var i=0; i < 32; i++)
+        result[i] = ~ arrValue[i]
+
+      let outOffset = elem_pos
+      const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
+      outputBytes.set(result)
+    },
     callvalue() {
       return 0
     },
@@ -269,6 +281,9 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
         break
       case 0x15:
         opcode = 'ISZERO'
+        break
+      case 0x19:
+        opcode = 'NOT'
         break
       case 0x34:
         opcode = 'CALLVALUE'

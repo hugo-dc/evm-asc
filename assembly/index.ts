@@ -25,6 +25,9 @@ declare function eqFunc(): void
 @external("main", "isZero")
 declare function isZeroFunc(): void
 
+@external("main", "not256")
+declare function notFunc(): void
+
 @external("main", "calldatasize")
 declare function getcalldatasize(): i32
 
@@ -90,7 +93,7 @@ export let BignumStackTop: i32 = 0;
 //let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 0, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0, 128, 91, 97, 39, 16, 129, 16, 21, 97, 1, 25, 87, 146, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 146, 96, 1, 1, 97, 0, 133, 86, 91, 80, 145, 146, 145, 80, 80, 86, 254, 161, 101, 98, 122, 122, 114, 48, 88, 32, 241, 119, 162, 139, 221, 145, 28, 48, 80, 232, 56, 92, 67, 2, 134, 171, 233, 224, 172, 166, 56, 129, 39, 238, 224, 11, 209, 57, 97, 172, 186, 106, 0, 41];
 
 // partial code test
-let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 39, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0];
+let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 39, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0, 128, 91, 97, 39, 16, 129, 16, 21, 91, 1, 25];
 
 // constructor test
 // let code_array: u8[] = [96, 128, 96, 64, 82, 52, 128, 21, 97, 0, 16, 87, 96, 0, 128, 253, 91, 80, 97, 1, 152, 128, 97, 0, 32, 96, 0, 57, 96, 0, 243, 254]
@@ -105,6 +108,7 @@ const div: u8 = 0x04
 const lt: u8 = 0x10
 const eq: u8 = 0x14
 const iszero: u8 = 0x15
+const opnot: u8 = 0x19
 const callvalue: u8 = 0x34
 const calldataload: u8 = 0x35
 const calldatasize: u8 = 0x36
@@ -133,7 +137,7 @@ export function run_evm(): i32 {
         pc++
 
         switch (opcode) {
-        case push1:
+        case push1: // 0x60
             result++
             let push_val = code_array[pc]
             
@@ -150,7 +154,7 @@ export function run_evm(): i32 {
             printStack()
             
             break
-        case push2:
+        case push2: // 0x61
             result++
             let push_val1 = code_array[pc]
             pc++
@@ -195,7 +199,7 @@ export function run_evm(): i32 {
             printOpcode(pc, opcode, push_val2)
             printStack()
             break
-        case push4:
+        case push4: // 0x63
             result++
             let push_val1 = code_array[pc]
             pc++
@@ -244,7 +248,7 @@ export function run_evm(): i32 {
             printOpcode(pc, opcode, push_val4)
             printStack()
             break
-        case push29:
+        case push29: // 0x7c
             result++
 
             let push_val1 = code_array[pc]
@@ -343,32 +347,32 @@ export function run_evm(): i32 {
             printStack()
             
             break
-        case add:
+        case add: // 0x01
             result++
             printOpcode(pc, add, 0)
             add256()
             printStack()
             break;
-        case sub:
+        case sub: // 0x03
             result++
             printOpcode(pc, opcode, 0)
             sub256()
             printStack()
             break
-        case div:
+        case div: // 0x04
             result++
             printOpcode(pc, opcode, 0)
             div256()
             printStack()
             break
-        case sstore:
+        case sstore: // 0x55
             result++
             //log(1000 + opcode)
             BignumStackTop = BignumStackTop - 3;
             let result_slot = BignumStackElements[BignumStackTop];
             finish(result_slot.dataStart);
             break;
-        case pop:
+        case pop: // 0x50
             result++
             printOpcode(pc, pop, 0)
             BignumStackTop--
@@ -454,14 +458,19 @@ export function run_evm(): i32 {
             eqFunc()
             printStack()
             break
-        case iszero:
+        case iszero: // 0x15
             result++
             printOpcode(pc, iszero, 0)
 
             isZeroFunc()
-
             printStack()
             
+            break
+        case opnot: // 0x19
+            result++
+            printOpcode(pc, opcode, 0)
+            notFunc()
+            printStack()
             break
         case stop:
             result++
