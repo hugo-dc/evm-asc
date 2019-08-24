@@ -291,6 +291,9 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       case 0x55:
         opcode = 'SSTORE'
         break
+      case 0x56:
+        opcode = 'JUMP'
+        break
       case 0x57:
         opcode = 'JUMPI'
         break
