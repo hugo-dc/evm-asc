@@ -108,8 +108,10 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
 
       let outOffset = b_pos
       BignumStackTop.value = BignumStackTop.value - 1
+
       const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
       outputBytes.set(resultBytes)
+
     }, 
     div256() {
       let a_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 1)
@@ -128,6 +130,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       BignumStackTop.value = BignumStackTop.value - 1
       const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
       outputBytes.set(resultBytes)
+
     },
     lt() {
       let stack_elem_a_pos = BignumStackStartOffset + 32 * (BignumStackTop.value - 1)
@@ -197,7 +200,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const elem = new Uint8Array(Memory.buffer, stack_elem_pos, 32)
 
       for (let i = offset; i < offset+32 ; i++) {
-        elem[i] = calldata[i]
+        elem[i - offset] = calldata[i]
       }
 
       BignumStackTop.value = BignumStackTop.value + 1
