@@ -281,6 +281,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       switch (opnum) {
       case 0x00:
         opcode = 'STOP'
+        break
       case 0x01:
         opcode = 'ADD'
         break
