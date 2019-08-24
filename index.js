@@ -333,8 +333,17 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       case 0x81:
         opcode = 'DUP2'
         break
+      case 0x82:
+        opcode = 'DUP3'
+        break
       case 0x90:
         opcode = 'SWAP1'
+        break
+      case 0x91:
+        opcode = 'SWAP2'
+        break
+      case 0x92:
+        opcode = 'SWAP3'
         break
       case 0xf3:
         opcode = 'RETURN'

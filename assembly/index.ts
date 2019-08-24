@@ -93,7 +93,7 @@ export let BignumStackTop: i32 = 0;
 //let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 0, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0, 128, 91, 97, 39, 16, 129, 16, 21, 97, 1, 25, 87, 146, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 146, 96, 1, 1, 97, 0, 133, 86, 91, 80, 145, 146, 145, 80, 80, 86, 254, 161, 101, 98, 122, 122, 114, 48, 88, 32, 241, 119, 162, 139, 221, 145, 28, 48, 80, 232, 56, 92, 67, 2, 134, 171, 233, 224, 172, 166, 56, 129, 39, 238, 224, 11, 209, 57, 97, 172, 186, 106, 0, 41];
 
 // partial code test
-let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 39, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0, 128, 91, 97, 39, 16, 129, 16, 21, 91, 1, 25];
+let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 39, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0, 128, 91, 97, 39, 16, 129, 16, 21, 91, 1, 25, 87, 146, 130];
 
 // constructor test
 // let code_array: u8[] = [96, 128, 96, 64, 82, 52, 128, 21, 97, 0, 16, 87, 96, 0, 128, 253, 91, 80, 97, 1, 152, 128, 97, 0, 32, 96, 0, 57, 96, 0, 243, 254]
@@ -126,7 +126,10 @@ const push4: u8 = 0x63
 const push29: u8 = 0x7c
 const dup1: u8 = 0x80
 const dup2: u8 = 0x81
+const dup3: u8 = 0x82
 const swap1: u8 = 0x90
+const swap2: u8 = 0x91
+const swap3: u8 = 0x92
 const opreturn: u8 = 0xf3
 const revert: u8 = 0xfd
 const invalid: u8 = 0xfe
@@ -548,7 +551,22 @@ export function run_evm(): i32 {
             BignumStackTop++
             printStack()
             break
-        case swap1:
+        case dup3:
+            printOpcode(pc, opcode, 0)
+            
+            // get value
+            let value_slot = BignumStackElements[BignumStackTop - 3]
+
+            // push value
+            let dup_slot = BignumStackElements[BignumStackTop]
+            for (var i= 0; i < 32; i++) {
+                dup_slot[i] = value_slot[i]
+            }
+
+            BignumStackTop++
+            printStack()
+            break
+        case swap1: // 0x90
             printOpcode(pc, opcode, 0)
 
             // get stack top
@@ -660,8 +678,120 @@ export function run_evm(): i32 {
 
             printStack()
             break
+        case swap3: // 0x92
+            printOpcode(pc, opcode, 0)
+
+            // get stack top
+            let top_slot = BignumStackElements[BignumStackTop - 1]
+
+            // get value
+            let value = BignumStackElements[BignumStackTop - 4]
+
+            // temp
+            let temp = new Uint8Array(32)
+            temp[0] = value[0]
+            temp[1] = value[1]
+            temp[2] = value[2]
+            temp[3] = value[3]
+            temp[4] = value[4]
+            temp[5] = value[5]
+            temp[6] = value[6]
+            temp[7] = value[7]
+            temp[8] = value[8]
+            temp[9] = value[9]
+            temp[10] = value[10]
+            temp[11] = value[11]
+            temp[12] = value[12]
+            temp[13] = value[13]
+            temp[14] = value[14]
+            temp[15] = value[15]
+            temp[16] = value[16]
+            temp[17] = value[17]
+            temp[18] = value[18]
+            temp[19] = value[19]
+            temp[20] = value[20]
+            temp[21] = value[21]
+            temp[22] = value[22]
+            temp[23] = value[23]
+            temp[24] = value[24]
+            temp[25] = value[25]
+            temp[26] = value[26]
+            temp[27] = value[27]
+            temp[28] = value[28]
+            temp[29] = value[29]
+            temp[30] = value[30]
+            temp[31] = value[31]
+
+            value[0] = top_slot[0]
+            value[1] = top_slot[1]
+            value[2] = top_slot[2]
+            value[3] = top_slot[3]
+            value[4] = top_slot[4]
+            value[5] = top_slot[5]
+            value[6] = top_slot[6]
+            value[7] = top_slot[7]
+            value[8] = top_slot[8]
+            value[9] = top_slot[9]
+            value[10] = top_slot[10]
+            value[11] = top_slot[11]
+            value[12] = top_slot[12]
+            value[13] = top_slot[13]
+            value[14] = top_slot[14]
+            value[15] = top_slot[15]
+            value[16] = top_slot[16]
+            value[17] = top_slot[17]
+            value[18] = top_slot[18]
+            value[19] = top_slot[19]
+            value[20] = top_slot[20]
+            value[21] = top_slot[21]
+            value[22] = top_slot[22]
+            value[23] = top_slot[23]
+            value[24] = top_slot[24]
+            value[25] = top_slot[25]
+            value[26] = top_slot[26]
+            value[27] = top_slot[27]
+            value[28] = top_slot[28]
+            value[29] = top_slot[29]
+            value[30] = top_slot[30]
+            value[31] = top_slot[31]
+
+            top_slot[0] = temp[0]
+            top_slot[1] = temp[1]
+            top_slot[2] = temp[2]
+            top_slot[3] = temp[3]
+            top_slot[4] = temp[4]
+            top_slot[5] = temp[5]
+            top_slot[6] = temp[6]
+            top_slot[7] = temp[7]
+            top_slot[8] = temp[8]
+            top_slot[9] = temp[9]
+            top_slot[10] = temp[10]
+            top_slot[11] = temp[11]
+            top_slot[12] = temp[12]
+            top_slot[13] = temp[13]
+            top_slot[14] = temp[14]
+            top_slot[15] = temp[15]
+            top_slot[16] = temp[16]
+            top_slot[17] = temp[17]
+            top_slot[18] = temp[18]
+            top_slot[19] = temp[19]
+            top_slot[20] = temp[20]
+            top_slot[21] = temp[21]
+            top_slot[22] = temp[22]
+            top_slot[23] = temp[23]
+            top_slot[24] = temp[24]
+            top_slot[25] = temp[25]
+            top_slot[26] = temp[26]
+            top_slot[27] = temp[27]
+            top_slot[28] = temp[28]
+            top_slot[29] = temp[29]
+            top_slot[30] = temp[30]
+            top_slot[31] = temp[31]
+
+            printStack()
+            break
         case opreturn:
-            printOpcode(pc, opreturn, 0)
+            printOpcode(pc, opcode, 0)
             break
         case revert:
             printOpcode(pc, revert, 0)
