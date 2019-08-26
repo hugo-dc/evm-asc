@@ -256,7 +256,8 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
         let elem_pos = BignumStackStartOffset + 32 * i;
         const elem = new Uint8Array(Memory.buffer, elem_pos, 32);
         const elem_bn = arrayToBn(elem)
-        console.log(elem_pos + ':' + i + ' | ' + pp(elem) + ' | ' + elem_bn)
+        //console.log(elem_pos + ':' + i + ' | ' + pp(elem) + ' | ' + elem_bn)
+        console.log(`${i} - ${elem_bn}`)
         i++;
       }
       console.log('')

@@ -153,6 +153,11 @@ export function run_evm(): i32 {
             // now that the value has been read, advance pc to the next opcode
             pc++;
             let stack_slot = BignumStackElements[BignumStackTop]
+
+            for (let i = 0; i < 32; i++) {
+                stack_slot[i] = 0
+            }
+            
             // 1 byte value goes in the last byte of the 32-byte stack slot
             stack_slot[31] = push_val
             
