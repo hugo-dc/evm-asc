@@ -486,7 +486,7 @@ export function run_evm(): i32 {
             printStack()
             break
         case stop: // 0x00
-            pc = code_array.length
+            pc = code_array.length     // finish execution
             printOpcode(pc, opcode, 0)
             break
         case jump:
@@ -803,7 +803,8 @@ export function run_evm(): i32 {
         case opreturn:
             printOpcode(pc, opcode, 0)
             break
-        case revert:
+        case revert: // 0xfd
+            pc = code_array.length      // finish execution
             printOpcode(pc, revert, 0)
             printMemory(10)
             // get offset

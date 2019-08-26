@@ -1,6 +1,8 @@
 const fs = require('fs');
 const loader = require('assemblyscript/lib/loader')
 
+const TWO_POW256 = BigInt('0x10000000000000000000000000000000000000000000000000000000000000000')
+
 let BignumStackTop = 0;
 let Memory;
 
@@ -103,7 +105,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const elemA = arrayToBn(arrA)
       const elemB = arrayToBn(arrB)
 
-      const result = elemA * elemB
+      const result = ( elemA * elemB ) % TWO_POW256
       const resultBytes = bnToArray(result)
 
       let outOffset = b_pos
@@ -253,7 +255,8 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       while (i < BignumStackTop.value) {
         let elem_pos = BignumStackStartOffset + 32 * i;
         const elem = new Uint8Array(Memory.buffer, elem_pos, 32);
-        console.log(elem_pos + ':' + i + ' | ' + pp(elem))
+        const elem_bn = arrayToBn(elem)
+        console.log(elem_pos + ':' + i + ' | ' + pp(elem) + ' | ' + elem_bn)
         i++;
       }
       console.log('')
