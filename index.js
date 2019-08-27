@@ -249,6 +249,23 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       }
       console.log("[finish] return val:", returnHex);
     },
+    calculatePC(pc) {
+      let cond_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 2)
+      const cond_array = new Uint8Array(Memory.buffer, cond_pos, 32)
+      const cond = arrayToBn(cond_array)
+      
+      if (cond != 0) {
+        let dest_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 1)
+        const dest_array = new Uint8Array(Memory.buffer, dest_pos, 32)
+        const dest_bn = arrayToBn(dest_array)
+
+        BignumStackTop.value = BignumStackTop.value - 2
+        return Number(dest_bn)
+      } else {
+        BignumStackTop.value = BignumStackTop.value - 2
+        return pc
+      }
+    },
     printStack() {
       console.log('STACK')
       var i = 0;
@@ -280,7 +297,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const elem = new Uint8Array(Memory.buffer, arr, 32);
       console.log(pp(elem))
     },
-    printOpcode(pc, opnum, value) {
+    printOpcode(pc, opnum) {
       var opcode = 'UNK (' + opnum + ')'
       switch (opnum) {
       case 0x00:
@@ -382,7 +399,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       }
       
       console.log('------------------------------------------------------------------------------------------------------------')
-      console.log((pc - 1) + ' ' +  opcode, ' [' + value.toString(16) + ']')
+      console.log(`${pc - 1} ${opcode}`)
       //console.log('====================================================')
       console.log('')
     }
