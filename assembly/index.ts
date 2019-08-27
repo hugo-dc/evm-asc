@@ -121,6 +121,7 @@ const calldataload: u8 = 0x35
 const calldatasize: u8 = 0x36
 const codecopy: u8 = 0x39
 const pop: u8 = 0x50
+
 const mstore: u8 = 0x52
 const sstore: u8 = 0x55
 const jump: u8 = 0x56
@@ -756,7 +757,8 @@ export function run_evm(): i32 {
             printStack()
             break
         default:
-            log(opcode)
+            printOpcode(pc, opcode)
+            pc = code_array.length  // unknown opcode, finish execution
             break;
         }
 

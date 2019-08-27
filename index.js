@@ -298,7 +298,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       console.log(pp(elem))
     },
     printOpcode(pc, opnum) {
-      var opcode = 'UNK (' + opnum + ')'
+      var opcode = `UNK (0x${opnum.toString(16)})`
       switch (opnum) {
       case 0x00:
         opcode = 'STOP'
