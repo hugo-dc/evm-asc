@@ -10,9 +10,8 @@ let BignumStackStartOffset;
 let EVMMemoryStartOffset;
 
 
-//let calldata = '26bceb59802431afcbce1fc194c9eaa417b2fb67dc75a95db0bc7ec6b1c8af11df6a1da9a1f5aac137876480252e5dcac62c354ec0d42b76b0642b6181ed099849ea1d57'
+// calldata: 0x26bceb59802431afcbce1fc194c9eaa417b2fb67dc75a95db0bc7ec6b1c8af11df6a1da9a1f5aac137876480252e5dcac62c354ec0d42b76b0642b6181ed099849ea1d57
 let calldata = new Uint8Array([38, 188, 235, 89, 128, 36, 49, 175, 203, 206, 31, 193, 148, 201, 234, 164, 23, 178, 251, 103, 220, 117, 169, 93, 176, 188, 126, 198, 177, 200, 175, 17, 223, 106, 29, 169, 161, 245, 170, 193, 55, 135, 100, 128, 37, 46, 93, 202, 198, 44, 53, 78, 192, 212, 43, 118, 176, 100, 43, 97, 129, 237, 9, 152, 73, 234, 29, 87])
-//let calldatasize = calldata.length
 
 function arrayToBn(arr) {
   var hexstr = []
@@ -237,7 +236,6 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       BignumStackTop.value = BignumStackTop.value + 1
     },
     calldatasize() {
-      //console.log('calldatasize: ', calldatasize)
       return calldata.length
     },
     finish(returnOffset, len) {
@@ -403,7 +401,6 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       
       console.log('------------------------------------------------------------------------------------------------------------')
       console.log(`${pc - 1} ${opcode}`)
-      //console.log('====================================================')
       console.log('')
     }
   },
