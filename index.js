@@ -69,10 +69,7 @@ function hexstr(arr) {
 const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimized.wasm'), {
   main: {
     setBignumStack(startData, len) {
-      console.log('[setBignumStack] startData:', startData);
       BignumStackStartOffset = startData;
-      console.log('[setBignumStack] len:', len);
-      console.log('[setBignumStack] BignumStackTop:', BignumStackTop);
     },
     setMemoryPtr(startData, len) {
       EVMMemoryStartOffset = startData
@@ -82,7 +79,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       let stack_elem_b_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 2)
       const arrayA = new Uint8Array(Memory.buffer, stack_elem_a_pos, 32)
       const arrayB = new Uint8Array(Memory.buffer, stack_elem_b_pos, 32)
-      
+
       const elemA = arrayToBn(arrayA)
       const elemB = arrayToBn(arrayB)
 
@@ -264,158 +261,22 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
         return pc
       }
     },
-    printStack() {
-      console.log('STACK')
-      var i = 0;
-      while (i < BignumStackTop.value) {
-        let elem_pos = BignumStackStartOffset + 32 * i;
-        const elem = new Uint8Array(Memory.buffer, elem_pos, 32);
-        const elem_bn = arrayToBn(elem)
-
-        console.log(`${i} - ${elem_bn}`)
-        i++;
-      }
-      console.log('')
-    },
-    printMemory(max) {
-      console.log('MEMORY')
-      var i = 0;
-      while (i < max) {
-        let elem_pos = EVMMemoryStartOffset + 16 * i;
-        const elem = new Uint8Array(Memory.buffer, elem_pos, 16);
-        
-        let ix = i * 16
-        console.log(`${elem_pos}: 0x${ix.toString(16)} | ${pp(elem)}`)
-        i++;
-      }
-      console.log('')
-    },
-    printMemSlot(arr) {
-      console.log('>', arr)
-      const elem = new Uint8Array(Memory.buffer, arr, 32);
-      console.log(pp(elem))
-    },
-    printOpcode(pc, opnum) {
-      var opcode = `UNK (0x${opnum.toString(16)})`
-      switch (opnum) {
-      case 0x00:
-        opcode = 'STOP'
-        break
-      case 0x01:
-        opcode = 'ADD'
-        break
-      case 0x02:
-        opcode = 'MUL'
-        break
-      case 0x03:
-        opcode = 'SUB'
-        break
-      case 0x04:
-        opcode = 'DIV'
-        break
-      case 0x10:
-        opcode = 'LT'
-        break
-      case 0x14:
-        opcode = 'EQ'
-        break
-      case 0x15:
-        opcode = 'ISZERO'
-        break
-      case 0x19:
-        opcode = 'NOT'
-        break
-      case 0x34:
-        opcode = 'CALLVALUE'
-        break
-      case 0x35:
-        opcode = 'CALLDATALOAD'
-        break
-      case 0x36:
-        opcode = 'CALLDATASIZE'
-        break
-      case 0x39:
-        opcode = 'CODECOPY'
-        break
-      case 0x50:
-        opcode = 'POP'
-        break
-      case 0x51:
-        opcode = 'MLOAD'
-        break
-      case 0x52:
-        opcode = 'MSTORE'
-        break
-      case 0x55:
-        opcode = 'SSTORE'
-        break
-      case 0x56:
-        opcode = 'JUMP'
-        break
-      case 0x57:
-        opcode = 'JUMPI'
-        break
-      case 0x5b:
-        opcode = 'JUMPDEST'
-        break
-      case 0x60:
-        opcode = 'PUSH1'
-        break
-      case 0x61:
-        opcode = 'PUSH2'
-        break
-      case 0x63:
-        opcode = 'PUSH4'
-        break
-      case 0x7c:
-        opcode = 'PUSH29'
-        break
-      case 0x80:
-        opcode = 'DUP1'
-        break
-      case 0x81:
-        opcode = 'DUP2'
-        break
-      case 0x82:
-        opcode = 'DUP3'
-        break
-      case 0x90:
-        opcode = 'SWAP1'
-        break
-      case 0x91:
-        opcode = 'SWAP2'
-        break
-      case 0x92:
-        opcode = 'SWAP3'
-        break
-      case 0xf3:
-        opcode = 'RETURN'
-        break
-      case 0xfd:
-        opcode = 'REVERT'
-        break
-      case 0xfe:
-        opcode = 'INVALID'
-        break
-      }
-      
-      console.log('------------------------------------------------------------------------------------------------------------')
-      console.log(`${pc - 1} ${opcode}`)
-      console.log('')
-    }
   },
   env: {
     abort(_msg, _file, line, column) {
       console.error("[abort] abort called at main.ts:" + line + ":" + column);
     },
-    log(value) {
-      console.log('[log]', '0x' + value.toString(16), '/', value)
-    }
   },
 })
 
 Memory = obj.memory
 BignumStackTop = obj.BignumStackTop
-console.log('BignumStackTop: ', BignumStackTop)
-var res = obj.run_evm()
+
+function run_evm() {
+  obj.run_evm()
+}
+
+console.time('run_evm')
+run_evm()
+console.timeEnd('run_evm')
 
