@@ -240,14 +240,14 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       //console.log('calldatasize: ', calldatasize)
       return calldata.length
     },
-    finish(returnOffset) {
-      const returnVal = new Uint8Array(Memory.buffer, returnOffset, 32);
-      let returnHex = '';
-      for (var i = 0; i < 32; i++) {
-        if (returnVal[i] < 16) returnHex += '0';
-            returnHex += returnVal[i].toString(16);
+    finish(returnOffset, len) {
+      const returnVal = new Uint8Array(Memory.buffer, returnOffset, len)
+      let returnHex = ''
+      for (var i = 0; i < len; i++) {
+        if (returnVal[i] < 16) returnHex += '0'
+            returnHex += returnVal[i].toString(16)
       }
-      console.log("[finish] return val:", returnHex);
+      console.log(`Return Data: 0x${returnHex}`)
     },
     calculatePC(pc) {
       let cond_pos = BignumStackStartOffset + 32*(BignumStackTop.value - 2)
@@ -273,7 +273,7 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
         let elem_pos = BignumStackStartOffset + 32 * i;
         const elem = new Uint8Array(Memory.buffer, elem_pos, 32);
         const elem_bn = arrayToBn(elem)
-        //console.log(elem_pos + ':' + i + ' | ' + pp(elem) + ' | ' + elem_bn)
+
         console.log(`${i} - ${elem_bn}`)
         i++;
       }
@@ -284,10 +284,10 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       var i = 0;
       while (i < max) {
         let elem_pos = EVMMemoryStartOffset + 16 * i;
-
         const elem = new Uint8Array(Memory.buffer, elem_pos, 16);
+        
         let ix = i * 16
-        console.log(elem_pos + ': 0x' + ix.toString(16) + ' | ' + pp(elem))
+        console.log(`${elem_pos}: 0x${ix.toString(16)} | ${pp(elem)}`)
         i++;
       }
       console.log('')
@@ -341,6 +341,9 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
         break
       case 0x50:
         opcode = 'POP'
+        break
+      case 0x51:
+        opcode = 'MLOAD'
         break
       case 0x52:
         opcode = 'MSTORE'

@@ -41,7 +41,7 @@ declare function getcalldata(offset: i32): void
 declare function getcallvalue(): i32
 
 @external("main", "finish")
-declare function finish(returnOffset: i32): void
+declare function finish(returnOffset: i32, length: i32): void
 
 @external("main", "calculatePC")
 declare function calculatePC(pc: i32): i32
@@ -63,46 +63,35 @@ declare function printMemSlot(arr: Uint8Array): void
 
 // bignum stack size is 100 elements
 // each stack element is 32 bytes
-let BignumStackSize = 100;
-let BignumElementSize = 32;
-let BignumStack = new ArrayBuffer(BignumElementSize * BignumStackSize);
+let BignumStackSize = 100
+let BignumElementSize = 32
+let BignumStack = new ArrayBuffer(BignumElementSize * BignumStackSize)
 
-let BignumStackPtr = changetype<usize>(BignumStack);
-setBignumStack(BignumStackPtr, 100);
+let BignumStackPtr = changetype<usize>(BignumStack)
+setBignumStack(BignumStackPtr, 100)
 
-//let BignumStackElements = new Array<Uint8Array>(100);
-let BignumStackElements = Array.create<Uint8Array>(100);
+let BignumStackElements = Array.create<Uint8Array>(100)
 
 for (let i = 0; i < BignumStackSize; i++) {
-  BignumStackElements[i] = Uint8Array.wrap(BignumStack, i*BignumElementSize, 32);
+  BignumStackElements[i] = Uint8Array.wrap(BignumStack, i*BignumElementSize, 32)
 }
 
-let MemorySize = 100;
-let MemoryElementSize = 16;
-let Memory = new ArrayBuffer(MemoryElementSize * MemorySize);
-let MemoryPtr = changetype<usize>(Memory);
-setMemoryPtr(MemoryPtr, 100);
-let MemoryElements = Array.create<Uint8Array>(100);
+let MemorySize = 100
+let MemoryElementSize = 16
+let Memory = new ArrayBuffer(MemoryElementSize * MemorySize)
+let MemoryPtr = changetype<usize>(Memory)
+setMemoryPtr(MemoryPtr, 100)
+let MemoryElements = Array.create<Uint8Array>(100)
 
 for (let i = 0; i < MemorySize; i++) {
-    MemoryElements[i] = Uint8Array.wrap(Memory, i * MemoryElementSize, 16);
+    MemoryElements[i] = Uint8Array.wrap(Memory, i * MemoryElementSize, 16)
 }
 
 //@global
-//export let BignumStackTop: i32 = 96;
-export let BignumStackTop: i32 = 0;
+export let BignumStackTop: i32 = 0
 
-//let code_array: u8[] = [96, 171, 96, 13, 1, 96, 0, 85];
-//let code_array: u8[] = [96, 7, 96, 13, 1, 96, 0, 85];
-
-// actual code test                                                            v
-let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 0, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0, 128, 91, 97, 39, 16, 129, 16, 21, 97, 1, 25, 87, 146, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 146, 96, 1, 1, 97, 0, 133, 86, 91, 80, 145, 146, 145, 80, 80, 86, 254, 161, 101, 98, 122, 122, 114, 48, 88, 32, 241, 119, 162, 139, 221, 145, 28, 48, 80, 232, 56, 92, 67, 2, 134, 171, 233, 224, 172, 166, 56, 129, 39, 238, 224, 11, 209, 57, 97, 172, 186, 106, 0, 41];
-
-// partial code test
-// let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 39, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0, 128, 91, 97, 39, 16, 129, 16, 21, 91, 1, 25, 87, 146, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 146, 96, 1, 1, 97, 0, 133];
-
-// constructor test
-// let code_array: u8[] = [96, 128, 96, 64, 82, 52, 128, 21, 97, 0, 16, 87, 96, 0, 128, 253, 91, 80, 97, 1, 152, 128, 97, 0, 32, 96, 0, 57, 96, 0, 243, 254]
+// actual code test
+let code_array: u8[] = [96, 128, 96, 64, 82, 96, 4, 54, 16, 97, 0, 58, 87, 124, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 0, 53, 4, 99, 38, 188, 235, 89, 129, 20, 97, 0, 63, 87, 91, 96, 0, 128, 253, 91, 52, 128, 21, 97, 0, 75, 87, 96, 0, 128, 253, 91, 80, 97, 0, 111, 96, 4, 128, 54, 3, 96, 64, 129, 16, 21, 97, 0, 98, 87, 96, 0, 128, 253, 91, 80, 128, 53, 144, 96, 32, 1, 53, 97, 0, 129, 86, 91, 96, 64, 128, 81, 145, 130, 82, 81, 144, 129, 144, 3, 96, 32, 1, 144, 243, 91, 96, 0, 128, 91, 97, 39, 16, 129, 16, 21, 97, 1, 25, 87, 146, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 130, 2, 146, 96, 1, 1, 97, 0, 133, 86, 91, 80, 145, 146, 145, 80, 80, 86, 254, 161, 101, 98, 122, 122, 114, 48, 88, 32, 241, 119, 162, 139, 221, 145, 28, 48, 80, 232, 56, 92, 67, 2, 134, 171, 233, 224, 172, 166, 56, 129, 39, 238, 224, 11, 209, 57, 97, 172, 186, 106, 0, 41]
 
 let result: i32 = 0
 let pc: i32 = 0
@@ -121,7 +110,7 @@ const calldataload: u8 = 0x35
 const calldatasize: u8 = 0x36
 const codecopy: u8 = 0x39
 const pop: u8 = 0x50
-
+const mload: u8 = 0x51
 const mstore: u8 = 0x52
 const sstore: u8 = 0x55
 const jump: u8 = 0x56
@@ -394,13 +383,37 @@ export function run_evm(): i32 {
 
             BignumStackTop = BignumStackTop - 3;
             let result_slot = BignumStackElements[BignumStackTop];
-            finish(result_slot.dataStart);
+            finish(result_slot.dataStart, 32);
             break;
         case pop: // 0x50
             result++
             printOpcode(pc, pop)
             BignumStackTop--
             printStack()
+            break
+        case mload: // FIXME
+            result++
+            printOpcode(pc, opcode)
+
+            // pop memid
+            let memid_slot = BignumStackElements[BignumStackTop - 1]
+            let memid = memid_slot[31]
+
+            // get value from memory
+            memid = memid / 16 + 1
+            let mem_slot = MemoryElements[memid]
+            let value = mem_slot[15]
+
+            let stack_slot = BignumStackElements[BignumStackTop - 1]
+
+            for (let i = 0; i < 32; i++) {
+                stack_slot[i] = 0
+            }
+
+            stack_slot[31] = value
+
+            printStack()
+            printMemory(10)
             break
         case mstore:
             result++
@@ -416,16 +429,25 @@ export function run_evm(): i32 {
             let memval_slot = BignumStackElements[BignumStackTop]
             let memval = memval_slot[31]
 
+            memid = memid / 16
+
+            let mem_slot1 = MemoryElements[memid]
+            let mem_slot2 = MemoryElements[memid + 1]
+
             // set value in memory
-            memid = memid / 16 + 1 // + 1 move to next half
-            let mem_slot = MemoryElements[memid]
-            mem_slot[15] = memval
+            for(let i = 0; i < 32; i++) {
+                if (i > 15) {
+                    mem_slot2[i-16] = memval_slot[i]
+                } else {
+                    mem_slot1[i] = memval_slot[i]
+                }
+            }
 
             // show stack
             printStack()
             
             // print memory
-            printMemory(memid + 1)
+            printMemory(memid + 2)
 
             break
         case callvalue:
@@ -518,7 +540,6 @@ export function run_evm(): i32 {
             result++
             printOpcode(pc, jumpi)
             pc = calculatePC(pc)
-            log(pc)
             printStack()
             
             break
@@ -550,10 +571,9 @@ export function run_evm(): i32 {
 
             // push value
             let dup_slot = BignumStackElements[BignumStackTop]
-            dup_slot[28] = value_slot[28]
-            dup_slot[29] = value_slot[29]
-            dup_slot[30] = value_slot[30]
-            dup_slot[31] = value_slot[31]
+            for (let i = 0; i < 32; i++) {
+                dup_slot[i] = value_slot[i]
+            }
 
             BignumStackTop++
             printStack()
@@ -738,7 +758,25 @@ export function run_evm(): i32 {
             break
         case opreturn:
             printOpcode(pc, opcode)
+
+            // pop offset
+            let offset_slot = BignumStackElements[BignumStackTop - 1]
+            let offset = offset_slot[31]
+
+            // pop length
+            let length_slot = BignumStackElements[BignumStackTop - 2]
+            let length = length_slot[31]
+
+            offset = offset / 16
+
+            let mem_slot = MemoryElements[offset]
+            
             printStack()
+            printMemory(10)
+            
+            finish(mem_slot.dataStart, length)
+
+            pc = code_array.length // finish execution
             break
         case revert: // 0xfd
             pc = code_array.length      // finish execution
