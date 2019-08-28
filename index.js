@@ -1,7 +1,8 @@
 const fs = require('fs');
 const loader = require('assemblyscript/lib/loader')
+const BN = require('bn.js')
 
-const TWO_POW256 = BigInt('0x10000000000000000000000000000000000000000000000000000000000000000')
+const TWO_POW256 = new BN('10000000000000000000000000000000000000000000000000000000000000000', 16)
 
 let BignumStackTop = 0;
 let Memory;
@@ -21,49 +22,7 @@ function arrayToBn(arr) {
       h = '0' + h
     hexstr.push(h)
   })
-  return BigInt('0x'+ hexstr.join(''))
-}
-
-function bnToArray(bn) {
-  var totalLength = 32
-  var hex = bn.toString(16)
-  if (hex.length % 2)
-    hex = '0' + hex
-
-  var len = hex.length / 2
-  var res = new Uint8Array(totalLength)
-
-  var start = totalLength - len
-
-  var i = 0
-  var j = 0
-  while (i < totalLength) {
-    if (i < start) {
-      res[i] = 0;
-    } else {
-      res[i] = parseInt(hex.slice(j, j+2), 16)
-      j += 2
-    }
-    i += 1
-  }
-
-  return res
-}
-
-function pp(arr) {
-  let res = []
-  arr.forEach((i) => {
-    res.push(i)
-  })
-
-  return '[' + res.join(', ') + ']'
-}
-
-function hexstr(arr) {
-  let res = '0x'
-  for (var i=0; i < arr.length; i++)
-    res += arr[i].toString(16)
-  return res
+  return new BN(hexstr.join(''), 16)
 }
 
 const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimized.wasm'), {
@@ -83,8 +42,8 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const elemA = arrayToBn(arrayA)
       const elemB = arrayToBn(arrayB)
 
-      const result = elemA + elemB
-      const resultBytes = bnToArray(result)
+      const result = elemA.add(elemB)
+      const resultBytes = result.toArrayLike(Uint8Array, 'be', 32)
 
       let outOffset = stack_elem_b_pos
       // pop 2 push 1, top is reduced by 1
@@ -101,8 +60,8 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const elemA = arrayToBn(arrA)
       const elemB = arrayToBn(arrB)
 
-      const result = ( elemA * elemB ) % TWO_POW256
-      const resultBytes = bnToArray(result)
+      const result = elemA.mul(elemB).mod(TWO_POW256)
+      const resultBytes = result.toArrayLike(Uint8Array, 'be', 32)
 
       let outOffset = b_pos
       BignumStackTop.value = BignumStackTop.value - 1
@@ -118,8 +77,8 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const elemA = arrayToBn(arrA)
       const elemB = arrayToBn(arrB)
 
-      const result = elemA - elemB
-      const resultBytes = bnToArray(result)
+      const result = elemA.sub(elemB)
+      const resultBytes = result.toArrayLike(Uint8Array, 'be', 32)
 
       let outOffset = b_pos
       BignumStackTop.value = BignumStackTop.value - 1
@@ -137,9 +96,9 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const elemA = arrayToBn(arrA)
       const elemB = arrayToBn(arrB)
 
-      const result = elemA / elemB
+      const result = elemA.div(elemB)
 
-      const resultBytes = bnToArray(result)
+      const resultBytes = result.toArrayLike(Uint8Array, 'be', 32)
 
       let outOffset = b_pos
       BignumStackTop.value = BignumStackTop.value - 1
@@ -157,12 +116,12 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const elemA = arrayToBn(arrayA)
       const elemB = arrayToBn(arrayB)
 
-      let result = BigInt(0)
-      if (elemA < elemB) {
-        result = BigInt(1)
+      let result = new BN(0)
+      if (elemA.lt(elemB)) {
+        result = new BN(1)
       } 
 
-      const resultBytes = bnToArray(result)
+      const resultBytes = result.toArrayLike(Uint8Array, 'be', 32)
 
       let outOffset = stack_elem_b_pos
       // pop 2 push 1, top is reduced by 1
@@ -180,12 +139,12 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const elemA = arrayToBn(arrA)
       const elemB = arrayToBn(arrB)
 
-      let result = BigInt(0)
-      if (elemA == elemB) {
-        result = BigInt(1)
+      let result = new BN(0)
+      if (elemA.eq(elemB)) {
+        result = new BN(1)
       }
 
-      const resultBytes = bnToArray(result)
+      const resultBytes = result.toArrayLike(Uint8Array, 'be', 32)
       let outOffset = b_pos
       BignumStackTop.value = BignumStackTop.value - 1
       const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
@@ -196,12 +155,12 @@ const obj = loader.instantiateBuffer(fs.readFileSync(__dirname + '/build/optimiz
       const arrValue = new Uint8Array(Memory.buffer, stack_elem_pos, 32)
       const value = arrayToBn(arrValue)
 
-      let result = BigInt(0)
-      if (value == 0) {
-        result = BigInt(1)
+      let result = new BN(0)
+      if (value.eq(new BN(0))) {
+        result = new BN(1)
       }
 
-      const resultBytes = bnToArray(result)
+      const resultBytes = result.toArrayLike(Uint8Array, 'be', 32)
       let outOffset = stack_elem_pos
       const outputBytes = new Uint8Array(Memory.buffer, outOffset, 32)
       outputBytes.set(resultBytes)
